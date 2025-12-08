@@ -1,3 +1,84 @@
-venv/
-__pycache__/S
+# venv/
+# __pycache__/S
+# .env
+# logs/
+
+# -----------------------------------
+# Python
+# -----------------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 .env
+*.env
+
+.vscode/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Jupyter (if any)
+.ipynb_checkpoints/
+
+# -----------------------------------
+# Airflow
+# -----------------------------------
+logs/
+dags/__pycache__/
+plugins/__pycache__/
+
+# Airflow local SQLite DB (if used)
+airflow.db
+
+# Airflow PID files
+airflow-webserver.pid
+airflow-scheduler.pid
+
+# -----------------------------------
+# Docker
+# -----------------------------------
+# Docker build artifacts
+*.log
+*.pid
+*.pid.lock
+
+# Local Docker volumes
+docker/volumes/
+**/postgres_data/
+**/redis_data/
+
+# Ignore Docker's airflow-init directory if created
+airflow-init/
+
+# -----------------------------------
+# Data files
+# -----------------------------------
+data/*.json
+data/*.csv
+YT_data*.json
+*.parquet
+
+# -----------------------------------
+# OS / Editor system files
+# -----------------------------------
+.DS_Store
+Thumbs.db
+
+# -----------------------------------
+# Backup files
+# -----------------------------------
+*.bak
+*.old
+*.swp
+*.tmp
+
+# -----------------------------------
+# Sensitive Keys
+# -----------------------------------
+secrets/
+*.key
+*.pem
+*.p12

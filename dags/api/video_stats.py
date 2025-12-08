@@ -1,16 +1,22 @@
 
 import requests
 import json
-import os
-from dotenv import load_dotenv
-load_dotenv(dotenv_path='./.env')
 from datetime import date
-API_KEY = os.getenv('API_KEY')
-CHANNEL_HANDLE = os.getenv('CHANNEL_HANDLE')
+
+# import os
+# from dotenv import load_dotenv
+# load_dotenv(dotenv_path='./.env')
+
+from airflow.decorators import task
+from airflow.models import Variable
+
+API_KEY = Variable.get('API_KEY')
+CHANNEL_HANDLE = Variable.get('CHANNEL_HANDLE')
 MAX_RESULT = 50
 #url = f'https://youtube.googleapis.com/youtube/v3/channels?part=contentDetails&forHandle={CHANNEL_HANDLE}&key={API_KEY}' 
 
 
+@task
 def get_playList_Id():
     try:
         url = f'https://youtube.googleapis.com/youtube/v3/channels?part=contentDetails&forHandle={CHANNEL_HANDLE}&key={API_KEY}' 
@@ -20,12 +26,12 @@ def get_playList_Id():
         data = response.json()
 #        #print(json.dumps(data, indent=4))
         channel_items = data['items'][0]
-        channel_playListId = channel_items['contentDetails']['relatedPlaylists']['uploads']
+        playListId = channel_items['contentDetails']['relatedPlaylists']['uploads']
 #
 #        #print(channel_items)
 #        #print(channel_playListId)
 #
-        return channel_playListId
+        return playListId
     except requests.exceptions.RequestException as e:
         raise e
 
@@ -34,7 +40,7 @@ def get_playList_Id():
 
 #'https://youtube.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults=1&pageToken=EAAaHlBUOkNBRWlFRVUxTlVFNVFqZzJRVEF4UXprMU1rRQ&playlistId=UUX6OQ3DkcsbYNE6H8uQQuVA&key=[YOUR_API_KEY]' \
 
-
+@task
 def get_videos_ids(playListId):
         
         base_url =   f'https://youtube.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults={MAX_RESULT}&playlistId={playListId}&key={API_KEY}'
@@ -64,6 +70,7 @@ def get_videos_ids(playListId):
         except requests.exceptions.RequestException as e:
             raise e
 
+@task
 def get_video_data(videos_ids):
 
     extract_data = []
@@ -76,7 +83,7 @@ def get_video_data(videos_ids):
             videos_ids_str = "," .join(batch)
 
             url = f'https://youtube.googleapis.com/youtube/v3/videos?part=contentDetails&part=snippet&part=statistics&id={videos_ids_str}&key={API_KEY}'
-            response = requests.get(url)   # <-- MOVED OUTSIDE if
+            response = requests.get(url)
             response.raise_for_status()
             data = response.json()
 
@@ -99,7 +106,7 @@ def get_video_data(videos_ids):
     except requests.exceptions.RequestException as e:
         raise e
 
-
+@task
 def data_save_to_json (extract_data):
     file_path=f'./data/YT_data{date.today()}.json'
     with open (file_path,'w', encoding='utf-8') as json_outfile:
